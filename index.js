@@ -8,10 +8,10 @@ const app = express();
 const port = 3000;
 
 const pool = new Pool({
-  user: 'your_username',
+  user: 'postgres',
   host: 'localhost',
-  database: 'your_database_name',
-  password: 'your_database_password',
+  database: 'postgres',
+  password: '1234',
   port: 5432,
 });
 
@@ -74,11 +74,24 @@ function authenticateToken(req, res, next) {
 }
 
 // authenticateToken not used 
-app.get('/data',  async (req, res) => {
+app.get('/data/:article/:products',  async (req, res) => {
   try {
-    const query = 'SELECT * FROM data';
+    var article = req.params.article;
+    var products=req.params.products;
+    
+    const query = 'SELECT * FROM data1';
     const result = await pool.query(query);
-    const data = result.rows;
+    var data = result.rows;
+    console.log(typeof article);
+    if(article != '0'){
+      article=parseInt(article);
+     data =  data.filter(item => item.Article === article);
+    }
+    if(products != '0'){
+       data = data.filter(function(obj) {
+        return obj.Product.startsWith(products);
+    });
+    }
 
     res.status(200).json(data);
   } catch (error) {
